@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional CV Maker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide-react@0.294.0/dist/umd/lucide.min.js"></script>
+
+    <style>
+        /* Custom styles for precise template matching */
+        :root {
+            --modern-dark: #2A3646; /* Dark blue-grey for modern template */
+            --classic-header: #F2F2F2; /* Light grey for classic headers */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-lato { font-family: 'Lato', sans-serif; }
+        .font-merriweather { font-family: 'Merriweather', serif; }
+
+        /* Modern Template Specific Styles */
+        .modern-template .header-curve {
+            background-color: var(--modern-dark);
+            border-bottom-right-radius: 80px;
+        }
+        .modern-template .sidebar-curve {
+            background-color: var(--modern-dark);
+            border-top-right-radius: 80px;
+        }
+        .modern-template .skill-bar-container {
+            background-color: #E0E0E0;
+            border-radius: 9999px;
+            height: 8px;
+            width: 100%;
+        }
+        .modern-template .skill-bar {
+            background-color: var(--modern-dark);
+            height: 100%;
+            border-radius: 9999px;
+        }
+        
+        /* Classic Template Specific Styles */
+        .classic-template h2 {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+            padding: 8px;
+            background-color: var(--classic-header);
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .classic-template .section-title {
+             font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+            padding: 8px;
+            background-color: var(--classic-header);
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Image preview styling */
+        .image-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e5e7eb;
+            margin-bottom: 0.5rem;
+        }
+        .remove-image-btn {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .remove-image-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        /* Form styling improvements */
+        .form-input {
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+        
+        /* Contact icons styling */
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .contact-input-container {
+            position: relative;
+        }
+        .contact-input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            opacity: 0.6;
+        }
+        .contact-input {
+            padding-left: 40px !important;
+        }
+        
+        /* General scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Ensure A4 aspect ratio for preview */
+        #cv-preview-content {
+            width: 21cm;
+            min-height: 29.7cm;
+            transform-origin: top left;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            #cv-preview-content {
+                width: 100%;
+                min-height: auto;
+                transform: none !important;
+            }
+        }
+        
+        /* Social icons styling */
+        .social-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        /* Link styling */
+        .social-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .modern-template .social-link {
+            color: white;
+        }
+        .modern-template .social-link:hover {
+            text-decoration: underline;
+        }
+        .classic-template .social-link {
+            color: #3b82f6;
+        }
+        .classic-template .social-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* PDF generation fixes */
+        .pdf-mode {
+            transform: scale(1) !important;
+            width: 21cm !important;
+            min-height: 29.7cm !important;
+            overflow: visible !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        <div class="w-full lg:w-1/3 bg-white p-6 shadow-lg overflow-y-auto" style="height: 100vh;">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">CV Maker</h1>
+            <p class="text-gray-500 mb-6">Enter your details and choose a template.</p>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-3 text-gray-700">Select Template</h2>
+                <div class="flex space-x-4">
+                    <button id="classic-btn" class="flex-1 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105" onclick="switchTemplate('classic')">Classic</button>
+                    <button id="modern-btn" class="flex-1 bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105" onclick="switchTemplate('modern')">Modern</button>
+                </div>
+            </div>
+
+            <div class="space-y-6" id="cv-form">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-600 border-b pb-2 mb-4">Personal Details</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <input type="text" data-cv="name" placeholder="Full Name" class="p-2 border rounded-md form-input">
+                        <input type="text" data-cv="title" placeholder="Job Title" class="p-2 border rounded-md form-input">
+                        <textarea data-cv="summary" placeholder="Summary" class="p-2 border rounded-md h-24 form-input"></textarea>
+                        <div>
+                             <label class="text-sm font-medium text-gray-700">Photo (For Modern Template)</label>
+                             <input type="file" id="profile-pic-input" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                             <div id="image-preview-container" class="image-preview-container hidden">
+                                 <img id="image-preview" class="image-preview" src="" alt="Profile Preview">
+                                 <button id="remove-image-btn" class="remove-image-btn">Remove Image</button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-600 border-b pb-2 mb-4 flex items-center">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3616/3616215.png" class="contact-icon mr-2"> Contact Information
+                    </h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/126/126341.png" class="contact-input-icon">
+                            <input type="tel" data-cv="phone" placeholder="Phone Number" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png" class="contact-input-icon">
+                            <input type="email" data-cv="email" placeholder="Email" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" class="contact-input-icon">
+                            <input type="text" data-cv="address" placeholder="Address" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" class="contact-input-icon">
+                            <input type="url" data-cv="personalWebsite" placeholder="Your Website URL" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" class="contact-input-icon">
+                            <input type="url" data-cv="linkedin" placeholder="LinkedIn Profile URL" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                        <div class="contact-input-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="contact-input-icon">
+                            <input type="url" data-cv="github" placeholder="GitHub Profile URL" class="contact-input p-2 border rounded-md form-input w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-600">Professional Experience</h3>
+                        <button id="add-experience" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600 transition-colors">+</button>
+                    </div>
+                    <div id="experience-list" class="space-y-4"></div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-600">Education</h3>
+                        <button id="add-education" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600 transition-colors">+</button>
+                    </div>
+                    <div id="education-list" class="space-y-4"></div>
+                </div>
+                
+                <div>
+                     <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-600">Skills</h3>
+                        <button id="add-skill" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600 transition-colors">+</button>
+                    </div>
+                    <div id="skills-list" class="space-y-4"></div>
+                </div>
+                
+                <div>
+                     <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-600">Languages</h3>
+                        <button id="add-language" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600 transition-colors">+</button>
+                    </div>
+                    <div id="languages-list" class="space-y-4"></div>
+                </div>
+                
+                 <div>
+                    <h3 class="text-lg font-semibold text-gray-600 border-b pb-2 mb-4">Additional Information</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <textarea data-cv="awards" placeholder="Awards and Activities" class="p-2 border rounded-md h-20 form-input"></textarea>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="mt-8">
+                 <button id="download-pdf" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-red-600">Download as PDF</button>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-2/3 bg-gray-200 p-8 overflow-auto flex items-start justify-center" style="height: 100vh;">
+            <div id="cv-preview-container" class="bg-white shadow-2xl">
+                </div>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('cv-form');
+        const previewContainer = document.getElementById('cv-preview-container');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        let currentTemplate = 'classic';
+        
+        // Default data updated to match the "Classic" template example
+        const cvData = {
+            name: '',
+            title: '',
+            summary: '',
+            phone: '',
+            email: '',
+            address: '',
+            personalWebsite: '',
+            github: '',
+            linkedin: '',
+            profilePic: 'https://placehold.co/200x200/EFEFEF/3A4A69?text=Photo',
+            experience: [
+                { title: '', company: '', period: '', description: '' },
+                { title: '', company: '', period: '', description: '' }
+            ],
+            education: [
+                { degree: '', school: '', period: ''},
+                { degree: '', school: '', period: ''}
+            ],
+            skills: [
+                { name: '', level: 90 }, { name: '', level: 95 }, { name: '', level: 85 },
+                { name: '', level: 92 }, { name: '', level: 88 }, { name: '', level: 94 },
+                { name: '', level: 89 }, { name: '', level: 91 }, { name: '', level: 87 }
+            ],
+            languages: [
+                { name: '', proficiency: '' }
+            ],
+            awards: ''
+        };
+        
+        function renderCV() {
+            previewContainer.innerHTML = (currentTemplate === 'classic') ? renderClassicTemplate(cvData) : renderModernTemplate(cvData);
+            if (currentTemplate === 'classic') {
+                document.getElementById('classic-btn').classList.replace('bg-gray-300', 'bg-blue-500');
+                document.getElementById('classic-btn').classList.replace('text-gray-700', 'text-white');
+                document.getElementById('modern-btn').classList.replace('bg-blue-500', 'bg-gray-300');
+                document.getElementById('modern-btn').classList.replace('text-white', 'text-gray-700');
+            } else {
+                document.getElementById('modern-btn').classList.replace('bg-gray-300', 'bg-blue-500');
+                document.getElementById('modern-btn').classList.replace('text-gray-700', 'text-white');
+                document.getElementById('classic-btn').classList.replace('bg-blue-500', 'bg-gray-300');
+                document.getElementById('classic-btn').classList.replace('text-white', 'text-gray-700');
+            }
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            const containerWidth = previewContainer.parentElement.clientWidth;
+            const previewContent = document.getElementById('cv-preview-content');
+            if (previewContent) {
+                // Scale for responsive preview on different screen sizes
+                const scale = Math.min(1, (containerWidth * 0.9) / previewContent.offsetWidth);
+                previewContent.style.transform = `scale(${scale})`;
+            }
+        }
+        
+        function populateForm() {
+            // Populate simple fields
+            document.querySelectorAll('input[data-cv], textarea[data-cv]').forEach(el => {
+                if(cvData.hasOwnProperty(el.dataset.cv)) {
+                    el.value = cvData[el.dataset.cv];
+                }
+            });
+
+            // Show image preview if exists
+            if (cvData.profilePic && cvData.profilePic !== '') {
+                imagePreview.src = cvData.profilePic;
+                imagePreviewContainer.classList.remove('hidden');
+            } else {
+                imagePreviewContainer.classList.add('hidden');
+            }
+
+            // Populate dynamic fields
+            ['experience', 'education', 'skills', 'languages'].forEach(type => {
+                const list = document.getElementById(`${type}-list`);
+                list.innerHTML = ''; // Clear the list
+                cvData[type].forEach((item, index) => {
+                    const container = document.createElement('div');
+                    container.className = 'p-3 border rounded-md bg-gray-50 relative';
+                    let fields = '';
+                    if (type === 'experience') {
+                        fields = `
+                            <input type="text" placeholder="Position" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.title}" oninput="updateDynamicField('${type}', ${index}, 'title', this.value)">
+                            <input type="text" placeholder="Company & Description" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.company}" oninput="updateDynamicField('${type}', ${index}, 'company', this.value)">
+                            <input type="text" placeholder="Period" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.period}" oninput="updateDynamicField('${type}', ${index}, 'period', this.value)">
+                            <textarea placeholder="Description" class="block w-full p-2 border rounded-md form-input" oninput="updateDynamicField('${type}', ${index}, 'description', this.value)">${item.description}</textarea>
+                        `;
+                    } else if (type === 'education') {
+                        fields = `
+                            <input type="text" placeholder="Degree / Exam" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.degree}" oninput="updateDynamicField('${type}', ${index}, 'degree', this.value)">
+                            <input type="text" placeholder="University / School" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.school}" oninput="updateDynamicField('${type}', ${index}, 'school', this.value)">
+                            <input type="text" placeholder="Period" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.period}" oninput="updateDynamicField('${type}', ${index}, 'period', this.value)">
+                             
+                        `;
+                    } else if (type === 'skills') {
+                         fields = `
+                            <input type="text" placeholder="Skill" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.name}" oninput="updateDynamicField('${type}', ${index}, 'name', this.value)">
+                            <div class="flex items-center">
+                                <input type="range" min="10" max="100" class="block w-full mr-2" value="${item.level}" oninput="updateDynamicField('${type}', ${index}, 'level', this.value); this.nextElementSibling.textContent = this.value + '%'">
+                                <span class="text-sm w-12">${item.level}%</span>
+                            </div>
+                        `;
+                    } else if (type === 'languages') {
+                         fields = `
+                            <input type="text" placeholder="Language" class="block w-full p-2 border rounded-md mb-2 form-input" value="${item.name}" oninput="updateDynamicField('${type}', ${index}, 'name', this.value)">
+                            <select class="block w-full p-2 border rounded-md form-input" onchange="updateDynamicField('${type}', ${index}, 'proficiency', this.value)">
+                                <option value="" ${item.proficiency === '' ? 'selected' : ''}>Select Proficiency</option>
+                                <option value="Native" ${item.proficiency === 'Native' ? 'selected' : ''}>Native</option>
+                                <option value="Fluent" ${item.proficiency === 'Fluent' ? 'selected' : ''}>Fluent</option>
+                                <option value="Intermediate" ${item.proficiency === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                                <option value="Basic" ${item.proficiency === 'Basic' ? 'selected' : ''}>Basic</option>
+                            </select>
+                        `;
+                    }
+                    container.innerHTML = fields + `<button class="absolute top-2 right-2 text-red-500 font-bold hover:text-red-700" onclick="removeField('${type}', ${index})">X</button>`;
+                    list.appendChild(container);
+                });
+            });
+        }
+        
+        window.updateDynamicField = (type, index, key, value) => {
+            cvData[type][index][key] = value;
+            renderCV();
+        };
+
+        window.addField = (type) => {
+            if (type === 'experience') cvData.experience.push({ title: '', company: '', period: '', description: ''});
+            if (type === 'education') cvData.education.push({ degree: '', school: '', period: '' });
+            if (type === 'skills') cvData.skills.push({ name: '', level: 80 });
+            if (type === 'languages') cvData.languages.push({ name: '', proficiency: ''});
+            
+            populateForm();
+            renderCV();
+        };
+
+        window.removeField = (type, index) => {
+            cvData[type].splice(index, 1);
+            populateForm();
+            renderCV();
+        };
+
+        window.switchTemplate = (template) => {
+            currentTemplate = template;
+            renderCV();
+        };
+
+        form.addEventListener('input', (e) => {
+            if (e.target.dataset.cv) {
+                 cvData[e.target.dataset.cv] = e.target.value;
+                 renderCV();
+            }
+        });
+        
+        document.getElementById('add-experience').onclick = () => addField('experience');
+        document.getElementById('add-education').onclick = () => addField('education');
+        document.getElementById('add-skill').onclick = () => addField('skills');
+        document.getElementById('add-language').onclick = () => addField('languages');
+        
+        // Handle image upload with preview
+        document.getElementById('profile-pic-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    cvData.profilePic = e.target.result;
+                    imagePreview.src = cvData.profilePic;
+                    imagePreviewContainer.classList.remove('hidden');
+                    renderCV();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle image removal
+        removeImageBtn.addEventListener('click', function() {
+            cvData.profilePic = '';
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            document.getElementById('profile-pic-input').value = '';
+            renderCV();
+        });
+
+        document.getElementById('download-pdf').addEventListener('click', () => {
+            const element = document.getElementById('cv-preview-content');
+            const originalTransform = element.style.transform;
+            const originalOverflow = element.style.overflow;
+            const originalWidth = element.style.width;
+            const originalMinHeight = element.style.minHeight;
+            
+            // Reset styles for PDF generation
+            element.style.transform = 'scale(1)';
+            element.style.overflow = 'visible';
+            element.style.width = '21cm';
+            element.style.minHeight = '29.7cm';
+            
+            // Create a clone of the element to avoid affecting the original
+            const clone = element.cloneNode(true);
+            clone.style.transform = 'scale(1)';
+            clone.style.overflow = 'visible';
+            clone.style.width = '21cm';
+            clone.style.minHeight = '29.7cm';
+            clone.style.position = 'absolute';
+            clone.style.left = '0';
+            clone.style.top = '0';
+            clone.id = 'cv-preview-clone';
+            
+            // Temporarily append the clone to the document
+            document.body.appendChild(clone);
+            
+            const opt = { 
+                margin: 0.5, 
+                filename: `${cvData.name.replace(' ', '_') || 'my_cv'}.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: true,
+                    width: clone.offsetWidth,
+                    height: clone.offsetHeight
+                }, 
+                jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' } 
+            };
+            
+            html2pdf().from(clone).set(opt).save().then(() => {
+                // Remove the clone after PDF generation
+                document.body.removeChild(clone);
+                
+                // Restore the original element's styles
+                element.style.transform = originalTransform;
+                element.style.overflow = originalOverflow;
+                element.style.width = originalWidth;
+                element.style.minHeight = originalMinHeight;
+            }).catch(error => {
+                console.error('PDF generation error:', error);
+                document.body.removeChild(clone);
+                element.style.transform = originalTransform;
+                element.style.overflow = originalOverflow;
+                element.style.width = originalWidth;
+                element.style.minHeight = originalMinHeight;
+            });
+        });
+        
+        // Initial setup
+        populateForm();
+        renderCV();
+        window.addEventListener('resize', renderCV);
+    });
+    
+    // TEMPLATE RENDER FUNCTIONS
+    function renderModernTemplate(data) {
+        return `
+            <div id="cv-preview-content" class="bg-white modern-template flex text-sm">
+                <div class="w-1/3 text-white p-8 sidebar-curve" style="background-color: var(--modern-dark);">
+                    ${data.profilePic ? `<img src="${data.profilePic}" alt="Profile Picture" class="w-40 h-40 rounded-full mx-auto mb-6 object-cover border-4 border-white shadow-lg">` : ''}
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold border-b-2 border-white pb-2 mb-3 uppercase tracking-wider">About Me</h3>
+                        <p class="text-xs leading-relaxed">${data.summary || 'Professional summary'}</p>
+                    </div>
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold border-b-2 border-white pb-2 mb-3 uppercase tracking-wider">Contact</h3>
+                        <ul class="space-y-2 text-xs">
+                            ${data.phone ? `<li><img src="https://cdn-icons-png.flaticon.com/512/126/126341.png" class="inline-block w-4 h-4 mr-2"> ${data.phone}</li>` : ''}
+                            ${data.email ? `<li><img src="https://cdn-icons-png.flaticon.com/512/561/561127.png" class="inline-block w-4 h-4 mr-2"> ${data.email}</li>` : ''}
+                            ${data.address ? `<li><img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" class="inline-block w-4 h-4 mr-2"> ${data.address}</li>` : ''}
+                            ${data.personalWebsite ? `<li><img src="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" class="inline-block w-4 h-4 mr-2"> <a href="${data.personalWebsite}" class="social-link">Website</a></li>` : ''}
+                            ${data.github ? `<li><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="inline-block w-4 h-4 mr-2"> <a href="${data.github}" class="social-link">GitHub</a></li>` : ''}
+                            ${data.linkedin ? `<li><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" class="inline-block w-4 h-4 mr-2"> <a href="${data.linkedin}" class="social-link">LinkedIn</a></li>` : ''}
+                        </ul>
+                    </div>
+                     <div>
+                        <h3 class="text-lg font-bold border-b-2 border-white pb-2 mb-3 uppercase tracking-wider">Languages</h3>
+                        <ul class="space-y-2 text-xs">
+                            ${data.languages && data.languages.length > 0 ? 
+                              data.languages.map(lang => `<li>${lang.name}${lang.proficiency ? ` - ${lang.proficiency}` : ''}</li>`).join('') : 
+                              '<li>No languages specified</li>'}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-2/3 p-8">
+                    <div class="mb-8">
+                         <h1 class="text-4xl font-bold text-[var(--modern-dark)]">${data.name || 'Your Name'}</h1>
+                         <p class="text-xl text-gray-600">${data.title || 'Professional Title'}</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-[var(--modern-dark)] border-b-2 border-gray-300 pb-2 mb-4 uppercase tracking-wider">Professional Experience</h3>
+                        <div class="space-y-4"> 
+                            ${data.experience && data.experience.length > 0 ? 
+                              data.experience.map(exp => `
+                                <div>
+                                    <h4 class="font-bold text-base">${exp.title || 'Position'}</h4>
+                                    <p class="text-sm font-semibold text-gray-700">${exp.company || 'Company'}</p>
+                                    <p class="text-xs text-gray-600 mt-1">${exp.period || ''}</p>
+                                    <p class="text-xs text-gray-600 mt-1">${exp.description || ''}</p>
+                                </div>
+                              `).join('') : 
+                              '<p>No experience added</p>'}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold text-[var(--modern-dark)] border-b-2 border-gray-300 pb-2 mb-4 uppercase tracking-wider">Education</h3>
+                        <div class="space-y-4"> 
+                            ${data.education && data.education.length > 0 ? 
+                              data.education.map(edu => `
+                                <div>
+                                    <h4 class="font-bold text-base">${edu.degree || 'Degree'}</h4>
+                                    <p class="text-sm font-semibold text-gray-700">${edu.school || 'Institution'}</p>
+                                    <p class="text-xs text-gray-600">${edu.period || ''}</p>
+                                </div>
+                              `).join('') : 
+                              '<p>No education added</p>'}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-[var(--modern-dark)] border-b-2 border-gray-300 pb-2 mb-4 uppercase tracking-wider">Skills</h3>
+                        <div class="grid grid-cols-2 gap-4"> 
+                            ${data.skills && data.skills.length > 0 ? 
+                              data.skills.map(skill => `
+                                <div>
+                                    <p class="text-sm mb-1">${skill.name || 'Skill'}</p>
+                                    <div class="skill-bar-container">
+                                        <div class="skill-bar" style="width: ${skill.level || 50}%;"></div>
+                                    </div>
+                                </div>
+                              `).join('') : 
+                              '<p>No skills added</p>'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderClassicTemplate(data) {
+        return `
+            <div id="cv-preview-content" class="bg-white classic-template p-12 font-merriweather text-gray-800">
+                <header class="text-center mb-10">
+                    <h1 class="text-5xl font-bold font-lato uppercase tracking-widest">${data.name || 'Your Name'}</h1>
+                    <p class="text-xl font-lato text-gray-600 mt-2">${data.title || 'Professional Title'}</p>
+                    <div class="flex justify-center space-x-4 text-sm text-gray-500 mt-4 font-lato">
+                        ${data.phone ? `<span>${data.phone}</span>` : ''}
+                        ${data.phone && data.email ? `<span>|</span>` : ''}
+                        ${data.email ? `<span>${data.email}</span>` : ''}
+                        ${(data.phone || data.email) && data.address ? `<span>|</span>` : ''}
+                        ${data.address ? `<span>${data.address}</span>` : ''}
+                    </div>
+                    <div class="flex justify-center space-x-4 text-sm text-gray-500 mt-2 font-lato">
+                        ${data.personalWebsite ? `<a href="${data.personalWebsite}" class="social-link">Website</a>` : ''}
+                        ${data.personalWebsite && data.github ? `<span>|</span>` : ''}
+                        ${data.github ? `<a href="${data.github}" class="social-link">GitHub</a>` : ''}
+                        ${(data.personalWebsite || data.github) && data.linkedin ? `<span>|</span>` : ''}
+                        ${data.linkedin ? `<a href="${data.linkedin}" class="social-link">LinkedIn</a>` : ''}
+                    </div>
+                </header>
+
+                <section> <h2 class="section-title">Summary</h2> <p class="text-sm leading-relaxed">${data.summary || 'Professional summary'}</p> </section>
+                <section> <h2 class="section-title">Technical Skills</h2> <div class="grid grid-cols-3 gap-x-8 gap-y-2 text-sm">${data.skills && data.skills.length > 0 ? data.skills.map(skill => `<span>• ${skill.name || 'Skill'}</span>`).join('') : '<span>No skills added</span>'}</div> </section>
+
+                <section>
+                    <h2 class="section-title">Professional Experience</h2>
+                    <div class="space-y-6">
+                        ${data.experience && data.experience.length > 0 ? 
+                          data.experience.map(exp => `
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-lg font-bold font-lato">${exp.title || 'Position'}</h3>
+                                    <p class="text-sm font-semibold font-lato">${exp.period || ''}</p>
+                                </div>
+                                <p class="italic text-md">${exp.company || 'Company'}</p>
+                                <ul class="list-disc list-inside text-sm mt-2 leading-relaxed space-y-1">
+                                    ${exp.description ? exp.description.split('.').filter(s => s.trim()).map(line => `<li>${line.trim()}.</li>`).join('') : '<li>No description provided.</li>'}
+                                </ul>
+                            </div>
+                          `).join('') : 
+                          '<p>No experience added</p>'}
+                    </div>
+                </section>
+                
+                <section>
+                    <h2 class="section-title">Education</h2>
+                    <div class="space-y-4">
+                        ${data.education && data.education.length > 0 ? 
+                          data.education.map(edu => `
+                            <div>
+                                 <div class="flex justify-between items-center">
+                                    <h3 class="text-lg font-bold font-lato">${edu.degree || 'Degree'}</h3>
+                                    <p class="text-sm font-semibold font-lato">${edu.period || ''}</p>
+                                </div>
+                                <p class="italic text-md">${edu.school || 'Institution'}</p>
+                                
+                            </div>
+                          `).join('') : 
+                          '<p>No education added</p>'}
+                    </div>
+                </section>
+                
+                <section>
+                    <h2 class="section-title">Languages</h2>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        ${data.languages && data.languages.length > 0 ? 
+                          data.languages.map(lang => `<span>• ${lang.name || 'Language'}${lang.proficiency ? ` (${lang.proficiency})` : ''}</span>`).join('') : 
+                          '<span>No languages added</span>'}
+                    </div>
+                </section>
+                
+                 <section>
+                    <h2 class="section-title">Additional Information</h2>
+                     <p class="text-sm mt-2"><b>Awards/Activities:</b> ${data.awards || 'No additional information provided'}</p>
+                </section>
+
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>
